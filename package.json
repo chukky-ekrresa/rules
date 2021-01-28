@@ -3,7 +3,7 @@
 	"version": "1.0.0",
 	"main": "index.js",
 	"author": "Ochuko Ekrresa",
-	"license": "MIT",
+	"license": "ISC",
 	"scripts": {
 		"build": "scripts/build.sh",
 		"build:watch": "tsc --watch",
