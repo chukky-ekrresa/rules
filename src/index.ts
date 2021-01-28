@@ -1,9 +1,16 @@
 require('dotenv').config();
-import express from 'express';
+import 'express-async-errors';
+import { celebrate } from 'celebrate';
 import compression from 'compression';
 import cors from 'cors';
+import createHttpError from 'http-errors';
+import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
+
+import { ErrorHandler } from './error';
+import { NEW_RULE } from './validation';
+import { responseHandler } from './response';
 
 const { NODE_ENV, PORT } = process.env;
 const app = express();
@@ -14,6 +21,8 @@ app.use(cors({}));
 app.use(helmet());
 app.use(compression());
 app.use(express.json());
+
+app.post('/validate-rule', celebrate(NEW_RULE, { stripUnknown: true }), responseHandler);
 
 app.get('/', (_req, res) => {
 	res.status(200).json({
@@ -28,6 +37,12 @@ app.get('/', (_req, res) => {
 		},
 	});
 });
+
+app.use((_req, _res, next) => {
+	next(createHttpError(404, { message: 'Resource not found' }));
+});
+
+app.use(ErrorHandler);
 
 app.listen(PORT, () => {
 	console.log('listening on PORT 4000');
