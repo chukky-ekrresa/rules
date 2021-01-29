@@ -38,7 +38,7 @@ app.get('/', (_req, res) => {
 });
 
 app.use((_req, _res, next) => {
-	next(createHttpError(404, { message: 'Resource not found' }));
+	next(createHttpError(404, { message: 'Resource not found.' }));
 });
 
 app.use(ErrorHandler);
