@@ -15,8 +15,8 @@ export async function responseHandler(req: Request, res: ApiResponse) {
 
 	let fieldExists: boolean;
 	let fieldValue: any;
-	// data can be an object, an array or a string
 
+	// data can be an object, an array or a string
 	if (Array.isArray(data) || typeof data === 'string') {
 		fieldExists = data[rule.field];
 		fieldValue = data[rule.field];
@@ -33,9 +33,7 @@ export async function responseHandler(req: Request, res: ApiResponse) {
 
 	switch (rule.condition) {
 		case 'contains':
-			if (Array.isArray(fieldValue) || typeof data === 'string') {
-				isValid = fieldValue.includes(rule.field);
-			}
+			isValid = fieldValue.includes(rule.condition_value);
 			break;
 		case 'eq':
 			isValid = fieldValue === rule.condition_value;

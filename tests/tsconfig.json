@@ -1,0 +1,10 @@
+{
+	"extends": "../tsconfig.json",
+	"references": [{ "name": "rule-validation-api", "path": ".." }],
+	"compilerOptions": {
+		"types": ["mocha", "chai"],
+		"rootDir": "..",
+		"noEmit": true
+	},
+	"include": ["."]
+}
