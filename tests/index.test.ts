@@ -6,6 +6,7 @@ import 'mocha';
 import app from '../src/app';
 import * as InvalidRequests from './fixtures/misc';
 import * as RequestDataObj from './fixtures/dataIsObject';
+import * as RequestDataString from './fixtures/dataIsString';
 
 const request = supertest(app);
 
@@ -188,6 +189,91 @@ describe('Rules Validation API', () => {
 			expect(status).to.equal(400);
 			expect(body.status).to.equal('error');
 			expect(body.message).to.equal('field dob is missing from data.');
+			expect(body.data).to.equal(null);
+		});
+	});
+
+	describe('Request Evaluation: where request.data is a string', () => {
+		it('Given condition "eq", should respond with status "success"', async function () {
+			const { data, rule } = RequestDataString.Success_Equals;
+			const { status, body } = await request
+				.post('/validate-rule')
+				.send(RequestDataString.Success_Equals);
+
+			expect(status).to.equal(200);
+			expect(body.status).to.match(/success/i);
+			expect(body.data.validation.error).to.equal(false);
+			assertDataValidated(body.data.validation, data, rule);
+		});
+
+		it('Given condition "neq", should respond with status "success"', async function () {
+			const { data, rule } = RequestDataString.Success_Not_Equal_To;
+			const { status, body } = await request
+				.post('/validate-rule')
+				.send(RequestDataString.Success_Not_Equal_To);
+
+			expect(status).to.equal(200);
+			expect(body.status).to.match(/success/i);
+			expect(body.data.validation.error).to.equal(false);
+			assertDataValidated(body.data.validation, data, rule);
+		});
+
+		it('Given condition "contains", should respond with status "success"', async function () {
+			const { data, rule } = RequestDataString.Success_Contains;
+			const { status, body } = await request
+				.post('/validate-rule')
+				.send(RequestDataString.Success_Contains);
+
+			expect(status).to.equal(200);
+			expect(body.status).to.match(/success/i);
+			expect(body.data.validation.error).to.equal(false);
+			assertDataValidated(body.data.validation, data, rule);
+		});
+
+		it('Given condition "gt", should respond with status "success"', async function () {
+			const { data, rule } = RequestDataString.Success_Greater_Than;
+			const { status, body } = await request
+				.post('/validate-rule')
+				.send(RequestDataString.Success_Greater_Than);
+
+			expect(status).to.equal(200);
+			expect(body.status).to.match(/success/i);
+			expect(body.data.validation.error).to.equal(false);
+			assertDataValidated(body.data.validation, data, rule);
+		});
+
+		it('Given condition "gte", should respond with status "success"', async function () {
+			const { data, rule } = RequestDataString.Success_Greater_Than_Or_Equal_To;
+			const { status, body } = await request
+				.post('/validate-rule')
+				.send(RequestDataString.Success_Greater_Than_Or_Equal_To);
+
+			expect(status).to.equal(200);
+			expect(body.status).to.match(/success/i);
+			expect(body.data.validation.error).to.equal(false);
+			assertDataValidated(body.data.validation, data, rule);
+		});
+
+		it('Given condition "gt", should respond with status "error"', async function () {
+			const { data, rule } = RequestDataString.Failure_Greater_Than;
+			const { status, body } = await request
+				.post('/validate-rule')
+				.send(RequestDataString.Failure_Greater_Than);
+
+			expect(status).to.equal(400);
+			expect(body.status).to.match(/error/i);
+			expect(body.data.validation.error).to.equal(true);
+			assertDataValidated(body.data.validation, data, rule);
+		});
+
+		it('should respond with status "field 8 is missing from data."', async function () {
+			const { status, body } = await request
+				.post('/validate-rule')
+				.send(RequestDataString.MissingField);
+
+			expect(status).to.equal(400);
+			expect(body.status).to.match(/error/i);
+			expect(body.message).to.equal('field 8 is missing from data.');
 			expect(body.data).to.equal(null);
 		});
 	});
