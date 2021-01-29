@@ -1,49 +1,55 @@
-require('dotenv').config();
-import 'express-async-errors';
-import { celebrate } from 'celebrate';
-import compression from 'compression';
-import cors from 'cors';
-import createHttpError from 'http-errors';
-import express from 'express';
-import helmet from 'helmet';
-import morgan from 'morgan';
+import http from 'http';
 
-import { ErrorHandler } from './error';
-import { NEW_RULE } from './validation';
-import { responseHandler } from './response';
+import app from './app';
 
-const { NODE_ENV, PORT } = process.env;
-const app = express();
+/**
+ * Believe it or not, reading process.env is expensive in NODE.js
+ * https://github.com/nodejs/node/issues/3104
+ * We want to cache process.env to a regular object since we don't expect it to change at runtime anyway.
+ */
+process.env = JSON.parse(JSON.stringify(process.env));
 
-app.use(morgan('dev', { skip: () => NODE_ENV === 'test' }));
+const { PORT } = process.env;
 
-app.use(cors({}));
-app.use(helmet());
-app.use(compression());
-app.use(express.json());
+app.set('port', PORT);
 
-app.post('/validate-rule', celebrate(NEW_RULE, { stripUnknown: true }), responseHandler);
+const server = http.createServer(app);
 
-app.get('/', (_req, res) => {
-	res.status(200).json({
-		message: 'My Rule-Validation API',
-		status: 'success',
-		data: {
-			name: 'Ochuko Ekrresa',
-			github: '@chukky-ekrresa',
-			email: 'ekrresaochuko@gmail.com',
-			mobile: '07036161822',
-			twitter: '@chukky_ekrresa',
-		},
-	});
-});
+server.listen(PORT);
+server.on('error', onError);
+server.on('listening', onListening);
 
-app.use((_req, _res, next) => {
-	next(createHttpError(404, { message: 'Resource not found' }));
-});
+/**
+ * Event handler for HTTP server "error" event.
+ */
+function onError(error: any) {
+	if (error.syscall !== 'listen') {
+		throw error;
+	}
 
-app.use(ErrorHandler);
+	const bind = typeof PORT === 'string' ? `Pipe ${PORT}` : `Port ${PORT}`;
 
-app.listen(PORT, () => {
-	console.log('listening on PORT 4000');
-});
+	// handle specific listen errors with friendly messages
+	switch (error.code) {
+		case 'EACCES':
+			console.error(`${bind} requires elevated privileges`);
+			process.exit(1);
+			break;
+		case 'EADDRINUSE':
+			console.error(`${bind} is already in use`);
+			process.exit(1);
+			break;
+		default:
+			throw error;
+	}
+}
+
+/**
+ * Event handler for HTTP server "listening" event.
+ */
+function onListening() {
+	const addr = server.address();
+	const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr!.port}`;
+
+	console.log(`Listening on ${bind}`);
+}
