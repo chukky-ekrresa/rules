@@ -4,7 +4,7 @@ import { celebrate } from 'celebrate';
 import compression from 'compression';
 import cors from 'cors';
 import createHttpError, { TooManyRequests } from 'http-errors';
-import express from 'express';
+import express, { NextFunction, Response, Request } from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
@@ -33,9 +33,9 @@ app.post(
 	responseHandler
 );
 
-app.get('/', (_req, res) => {
+app.get('/', setCache, (_req, res) => {
 	res.status(200).json({
-		message: 'My Rule-Validation API',
+		message: 'My Rule-Validation API.',
 		status: 'success',
 		data: {
 			name: 'Ochuko Ekrresa',
@@ -62,7 +62,15 @@ function rateLimitRequests() {
 		headers: true,
 		skip: () => process.env.NODE_ENV === 'test',
 		handler: () => {
-			throw new TooManyRequests('You have exceeded the 100 validation requests in a minute limit!');
+			throw new TooManyRequests('You have exceeded the 100 validation requests in a minute limit.');
 		},
 	});
+}
+
+function setCache(_req: Request, res: Response, next: NextFunction) {
+	// Cache for 30 days
+	const period = 60 * 60 * 24 * 30;
+	res.set('Cache-control', `public, max-age=${period}`);
+
+	next();
 }
