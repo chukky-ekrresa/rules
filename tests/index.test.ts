@@ -7,6 +7,7 @@ import app from '../src/app';
 import * as InvalidRequests from './fixtures/misc';
 import * as RequestDataObj from './fixtures/dataIsObject';
 import * as RequestDataString from './fixtures/dataIsString';
+import * as RequestDataArray from './fixtures/dataIsArray';
 
 const request = supertest(app);
 
@@ -37,7 +38,7 @@ describe('Rules Validation API', () => {
 	});
 
 	describe('Request Validation', () => {
-		it('should respond with "condition is required"', async function () {
+		it('should respond with "condition is required."', async function () {
 			const { status, body } = await request
 				.post('/validate-rule')
 				.send(InvalidRequests.conditionMissing);
@@ -47,7 +48,7 @@ describe('Rules Validation API', () => {
 			expect(body.data).to.equal(null);
 		});
 
-		it('should respond with "data is required"', async function () {
+		it('should respond with "data is required."', async function () {
 			const { status, body } = await request
 				.post('/validate-rule')
 				.send(InvalidRequests.dataMissing);
@@ -57,7 +58,7 @@ describe('Rules Validation API', () => {
 			expect(body.data).to.equal(null);
 		});
 
-		it('should respond with "rule is required"', async function () {
+		it('should respond with "rule is required."', async function () {
 			const { status, body } = await request
 				.post('/validate-rule')
 				.send(InvalidRequests.ruleMissing);
@@ -67,7 +68,7 @@ describe('Rules Validation API', () => {
 			expect(body.data).to.equal(null);
 		});
 
-		it('should respond with "rule should be of type object"', async function () {
+		it('should respond with "rule should be of type object."', async function () {
 			const { status, body } = await request
 				.post('/validate-rule')
 				.send(InvalidRequests.invalidRuleField);
@@ -83,7 +84,7 @@ describe('Rules Validation API', () => {
 				.send(InvalidRequests.invalidDataField);
 
 			expect(status).to.equal(400);
-			expect(body.message).to.match(/(?=.*data)(?=.*object)(?=.*\.$)/i);
+			expect(body.message).to.match(/(?=.*data)(?=.*object)(?=.*array)(?=.*string)(?=.*\.$)/i);
 			expect(body.data).to.equal(null);
 		});
 
@@ -109,7 +110,7 @@ describe('Rules Validation API', () => {
 	});
 
 	describe('Request Evaluation: where request.data is an object', () => {
-		it('Given condition "contains", should respond with status "success"', async function () {
+		it('given condition "contains", should respond with status "success"', async function () {
 			const { data, rule } = RequestDataObj.Success_Contains;
 			const { status, body } = await request
 				.post('/validate-rule')
@@ -121,7 +122,7 @@ describe('Rules Validation API', () => {
 			assertDataValidated(body.data.validation, data, rule);
 		});
 
-		it('Given condition "eq", should respond with status "success"', async function () {
+		it('given condition "eq", should respond with status "success"', async function () {
 			const { data, rule } = RequestDataObj.Success_Equals;
 			const { status, body } = await request
 				.post('/validate-rule')
@@ -133,7 +134,7 @@ describe('Rules Validation API', () => {
 			assertDataValidated(body.data.validation, data, rule);
 		});
 
-		it('Given condition "neq", should respond with status "success"', async function () {
+		it('given condition "neq", should respond with status "success"', async function () {
 			const { data, rule } = RequestDataObj.Success_Not_Equal_To;
 			const { status, body } = await request
 				.post('/validate-rule')
@@ -145,7 +146,7 @@ describe('Rules Validation API', () => {
 			assertDataValidated(body.data.validation, data, rule);
 		});
 
-		it('Given condition "gt", should respond with status "success"', async function () {
+		it('given condition "gt", should respond with status "success"', async function () {
 			const { data, rule } = RequestDataObj.Success_Greater_Than;
 			const { status, body } = await request
 				.post('/validate-rule')
@@ -157,7 +158,7 @@ describe('Rules Validation API', () => {
 			assertDataValidated(body.data.validation, data, rule);
 		});
 
-		it('Given condition "gte", should respond with status "success"', async function () {
+		it('given condition "gte", should respond with status "success"', async function () {
 			const { data, rule } = RequestDataObj.Success_Greater_Than_Or_Equal_To;
 			const { status, body } = await request
 				.post('/validate-rule')
@@ -169,7 +170,7 @@ describe('Rules Validation API', () => {
 			assertDataValidated(body.data.validation, data, rule);
 		});
 
-		it('Given condition "contains", should respond with status "error"', async function () {
+		it('given condition "contains", should respond with status "error"', async function () {
 			const { data, rule } = RequestDataObj.Failure_Contains;
 			const { status, body } = await request
 				.post('/validate-rule')
@@ -194,7 +195,7 @@ describe('Rules Validation API', () => {
 	});
 
 	describe('Request Evaluation: where request.data is a string', () => {
-		it('Given condition "eq", should respond with status "success"', async function () {
+		it('given condition "eq", should respond with status "success"', async function () {
 			const { data, rule } = RequestDataString.Success_Equals;
 			const { status, body } = await request
 				.post('/validate-rule')
@@ -206,7 +207,7 @@ describe('Rules Validation API', () => {
 			assertDataValidated(body.data.validation, data, rule);
 		});
 
-		it('Given condition "neq", should respond with status "success"', async function () {
+		it('given condition "neq", should respond with status "success"', async function () {
 			const { data, rule } = RequestDataString.Success_Not_Equal_To;
 			const { status, body } = await request
 				.post('/validate-rule')
@@ -218,7 +219,7 @@ describe('Rules Validation API', () => {
 			assertDataValidated(body.data.validation, data, rule);
 		});
 
-		it('Given condition "contains", should respond with status "success"', async function () {
+		it('given condition "contains", should respond with status "success"', async function () {
 			const { data, rule } = RequestDataString.Success_Contains;
 			const { status, body } = await request
 				.post('/validate-rule')
@@ -230,7 +231,7 @@ describe('Rules Validation API', () => {
 			assertDataValidated(body.data.validation, data, rule);
 		});
 
-		it('Given condition "gt", should respond with status "success"', async function () {
+		it('given condition "gt", should respond with status "success"', async function () {
 			const { data, rule } = RequestDataString.Success_Greater_Than;
 			const { status, body } = await request
 				.post('/validate-rule')
@@ -242,7 +243,7 @@ describe('Rules Validation API', () => {
 			assertDataValidated(body.data.validation, data, rule);
 		});
 
-		it('Given condition "gte", should respond with status "success"', async function () {
+		it('given condition "gte", should respond with status "success"', async function () {
 			const { data, rule } = RequestDataString.Success_Greater_Than_Or_Equal_To;
 			const { status, body } = await request
 				.post('/validate-rule')
@@ -254,7 +255,7 @@ describe('Rules Validation API', () => {
 			assertDataValidated(body.data.validation, data, rule);
 		});
 
-		it('Given condition "gt", should respond with status "error"', async function () {
+		it('given condition "gt", should respond with status "error"', async function () {
 			const { data, rule } = RequestDataString.Failure_Greater_Than;
 			const { status, body } = await request
 				.post('/validate-rule')
@@ -270,6 +271,91 @@ describe('Rules Validation API', () => {
 			const { status, body } = await request
 				.post('/validate-rule')
 				.send(RequestDataString.MissingField);
+
+			expect(status).to.equal(400);
+			expect(body.status).to.match(/error/i);
+			expect(body.message).to.equal('field 8 is missing from data.');
+			expect(body.data).to.equal(null);
+		});
+	});
+
+	describe('Request Evaluation: where request.data is a array', () => {
+		it('given condition "eq", should respond with status "success"', async function () {
+			const { data, rule } = RequestDataArray.Success_Contains;
+			const { status, body } = await request
+				.post('/validate-rule')
+				.send(RequestDataArray.Success_Contains);
+
+			expect(status).to.equal(200);
+			expect(body.status).to.equal('success');
+			expect(body.data.validation.error).to.equal(false);
+			assertDataValidated(body.data.validation, data, rule);
+		});
+
+		it('given condition "neq", should respond with status "success"', async function () {
+			const { data, rule } = RequestDataArray.Success_Not_Equal_To;
+			const { status, body } = await request
+				.post('/validate-rule')
+				.send(RequestDataArray.Success_Not_Equal_To);
+
+			expect(status).to.equal(200);
+			expect(body.status).to.equal('success');
+			expect(body.data.validation.error).to.equal(false);
+			assertDataValidated(body.data.validation, data, rule);
+		});
+
+		it('given condition "contains", should respond with status "success"', async function () {
+			const { data, rule } = RequestDataArray.Success_Contains;
+			const { status, body } = await request
+				.post('/validate-rule')
+				.send(RequestDataArray.Success_Contains);
+
+			expect(status).to.equal(200);
+			expect(body.status).to.equal('success');
+			expect(body.data.validation.error).to.equal(false);
+			assertDataValidated(body.data.validation, data, rule);
+		});
+
+		it('given condition "gt", should respond with status "success"', async function () {
+			const { data, rule } = RequestDataArray.Success_Greater_Than;
+			const { status, body } = await request
+				.post('/validate-rule')
+				.send(RequestDataArray.Success_Greater_Than);
+
+			expect(status).to.equal(200);
+			expect(body.status).to.equal('success');
+			expect(body.data.validation.error).to.equal(false);
+			assertDataValidated(body.data.validation, data, rule);
+		});
+
+		it('given condition "gte", should respond with status "success"', async function () {
+			const { data, rule } = RequestDataArray.Success_Greater_Than_Or_Equal_To;
+			const { status, body } = await request
+				.post('/validate-rule')
+				.send(RequestDataArray.Success_Greater_Than_Or_Equal_To);
+
+			expect(status).to.equal(200);
+			expect(body.status).to.equal('success');
+			expect(body.data.validation.error).to.equal(false);
+			assertDataValidated(body.data.validation, data, rule);
+		});
+
+		it('given condition "contains", should respond with status "error"', async function () {
+			const { data, rule } = RequestDataArray.Failure_Contains;
+			const { status, body } = await request
+				.post('/validate-rule')
+				.send(RequestDataArray.Failure_Contains);
+
+			expect(status).to.equal(400);
+			expect(body.status).to.match(/error/i);
+			expect(body.data.validation.error).to.equal(true);
+			assertDataValidated(body.data.validation, data, rule);
+		});
+
+		it('should respond with status "field 8 is missing from data."', async function () {
+			const { status, body } = await request
+				.post('/validate-rule')
+				.send(RequestDataArray.MissingField);
 
 			expect(status).to.equal(400);
 			expect(body.status).to.match(/error/i);
