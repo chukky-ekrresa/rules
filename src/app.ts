@@ -3,16 +3,21 @@ import 'express-async-errors';
 import { celebrate } from 'celebrate';
 import compression from 'compression';
 import cors from 'cors';
-import createHttpError from 'http-errors';
+import createHttpError, { TooManyRequests } from 'http-errors';
 import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import rateLimit from 'express-rate-limit';
 
 import { ErrorHandler } from './error';
 import { NEW_RULE } from './validation';
 import { responseHandler } from './response';
 
 const app = express();
+
+if (process.env.NODE_ENV === 'production') {
+	app.set('trust proxy', 1);
+}
 
 app.use(morgan('dev', { skip: () => process.env.NODE_ENV === 'test' }));
 
@@ -21,7 +26,12 @@ app.use(helmet());
 app.use(compression());
 app.use(express.json());
 
-app.post('/validate-rule', celebrate(NEW_RULE, { stripUnknown: true }), responseHandler);
+app.post(
+	'/validate-rule',
+	rateLimitRequests(),
+	celebrate(NEW_RULE, { stripUnknown: true }),
+	responseHandler
+);
 
 app.get('/', (_req, res) => {
 	res.status(200).json({
@@ -44,3 +54,15 @@ app.use((_req, _res, next) => {
 app.use(ErrorHandler);
 
 export default app;
+
+function rateLimitRequests() {
+	return rateLimit({
+		max: 1,
+		windowMs: 60 * 1000,
+		headers: true,
+		skip: () => process.env.NODE_ENV === 'test',
+		handler: () => {
+			throw new TooManyRequests('You have exceeded the 100 validation requests in a minute limit!');
+		},
+	});
+}
